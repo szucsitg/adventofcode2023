@@ -14,7 +14,8 @@ let
       "seven"
       "eight"
       "nine"
-    ] [ "1" "2" "3" "4" "5" "6" "7" "8" "9" ] s;
+    ] ["1" "2" "3" "4" "5" "6" "7" "8" "9"]
+    s;
   getList = r: builtins.filter builtins.isString (builtins.split "\n" r);
 
   findMatch = s:
