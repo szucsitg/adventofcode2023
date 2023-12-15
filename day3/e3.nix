@@ -34,6 +34,7 @@ let
           length = builtins.stringLength b;
           isNumber = !builtins.isNull (builtins.match "([0-9]+)" b);
           isSymbol = !builtins.isNull (builtins.match "([^.0-9]+)" b);
+          isGear = !builtins.isNull (builtins.match "([*])" b);
           rowIndex = rowNo;
           rowPosition =
             if builtins.length a == 0
@@ -44,6 +45,7 @@ let
 
   symbolList = builtins.filter (x: x.isSymbol) parsePartsInput;
   partsList = builtins.filter (x: x.isNumber) parsePartsInput;
+  gearList = builtins.filter (x: x.isGear) parsePartsInput;
 
   adjacentSymbol = partData:
     !builtins.isNull
@@ -58,6 +60,16 @@ let
       null
       symbolList);
 
+  adjacentNumbers = gearData: (builtins.filter (part:
+    if
+      (part.rowIndex >= gearData.rowIndex - 1 && part.rowIndex <= gearData.rowIndex + 1)
+      && (
+        part.rowPosition <= gearData.rowPosition + 1 && part.rowPosition + part.length > gearData.rowPosition - 1
+      )
+    then true
+    else false)
+  partsList);
+
   findPartNumbers =
     lib.lists.foldl (a: b:
       a
@@ -68,6 +80,18 @@ let
       ))
     0
     partsList;
+
+  findGearRatio =
+    lib.lists.foldl (a: b:
+      a
+      + (
+        if builtins.length (adjacentNumbers b) == 2
+        then lib.lists.foldl (c: d: c * (lib.toInt d.value)) 1 (adjacentNumbers b)
+        else 0
+      ))
+    0
+    gearList;
 in {
   taskA = lib.debug.traceValSeqN 4 findPartNumbers;
+  taskB = lib.debug.traceValSeqN 4 findGearRatio;
 }
